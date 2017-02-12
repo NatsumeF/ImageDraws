@@ -74,7 +74,7 @@
 					cursor: "pointer",
 					borderRadius: "5px",
 					margin: " 9px 20px",
-					fontSize: "15px",
+					fontSize: "14px",
 					lineHeight: 1,
 					marginRight: 0,
 					background: "#444",
@@ -133,6 +133,7 @@
 		var me = this;
 		me.image.addEventListener("mousedown", function(e) {
 			e.stopPropagation();
+			e.preventDefault();
 			var x = e.clientX,
 				y = e.clientY,
 				//这里通过加上一个margin来补偿多减去的offsetLeft
@@ -187,6 +188,14 @@
 						me.reduceSize(0.1)
 				}
 			})
+				me.image.addEventListener("DOMMouseScroll",function(e){
+					e.preventDefault();
+					if(e.detail>0){
+						me.addSize(0.1)
+					}else if(e.detail<0){
+						me.reduceSize(0.1)
+					}
+				})
 			}
 		}
 		//显示图片
