@@ -217,6 +217,9 @@
 			this.image.style.width = this.getWidth(this.image) - this.getWidth(this.image) * size + "px";
 		}
 		//添加事件
+	ImageDraws.prototype.getAlt=function(dom){
+		this.alt = dom.getAttribute("alt")||null;
+	}
 	ImageDraws.prototype.addEvent = function() {
 			var me = this;
 			/*for (let i = 0; i < this.dom.length; i++) {
@@ -237,7 +240,7 @@
 					for(let i = 0 ; i<me.dom.length;i++){
 						if(e.target===me.dom[i]){
 								me.createImg(e.target);
-					me.alt=me.dom[i].alt||null;
+					me.getAlt(e.target);
 					me.index=i;
 					me.goButtonChangeColor();
 					if(me.removeDown){
@@ -310,6 +313,7 @@
 			this.index++;
 			this.goButtonChangeColor();
 			this.image.src=this.getSrc(this.dom[this.index]);
+			this.getAlt(this.dom[this.index]);
 		}
 	}
 	ImageDraws.prototype.goPrevFn=function(){
@@ -320,6 +324,7 @@
 			this.index--;
 			this.goButtonChangeColor();
 			this.image.src=this.getSrc(this.dom[this.index]);
+			this.getAlt(this.dom[this.index]);
 		}
 	}
 	//添加关闭回调
