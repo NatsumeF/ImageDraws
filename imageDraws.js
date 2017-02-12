@@ -158,7 +158,6 @@
 	ImageDraws.prototype.createImg = function(dom) {
 			this.image = document.createElement("img");
 			this.image.src = this.getSrc(dom);
-
 			var height,
 				me = this,
 				width;
@@ -268,7 +267,7 @@
 				} else if (e.target === me.shade) {
 					me.hide();
 				} else if (e.target === me.downLoad) {
-					me.downImage(me.image.src);
+					me.downImage(me.getSrc(e.target));
 				} else if (e.target === me.max) {
 					me.addSize(0.2);
 				} else if (e.target === me.min) {
@@ -301,7 +300,7 @@
 		//下载给定的元素数组所有的图片
 	ImageDraws.prototype.downImageAll = function() {
 		for (let i = 0; i < this.dom.length; i++) {
-			this.downImage(this.dom[i].src)
+			this.downImage(this.getSrc(this.dom[i]))
 		}
 	}
 	ImageDraws.prototype.goButtonChangeColor=function(){
