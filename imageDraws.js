@@ -11,6 +11,7 @@
 		this.init();
 	}
 	ImageDraws.prototype.init = function() {
+			this.removeDown=false;
 			this.createElements();
 			this.addEvent();
 		}
@@ -27,6 +28,10 @@
 			this.min = document.createElement("button");
 			this.min.innerHTML = "缩小";
 			this.downLoad = document.createElement("button");
+			this.goPrev=document.createElement("button");
+			this.goPrev.innerHTML="<"
+			this.goNext=document.createElement("button");
+			this.goNext.innerHTML=">"
 			this.downLoad.innerHTML = "下载";
 			var shadeStyle = {
 					height: "100%",
@@ -56,15 +61,14 @@
 				},
 				shareStyle = {
 					height: "50px",
-					width: "250px",
+					width:"auto",
 					position: "absolute",
 					bottom: "10px",
 					left: "50%",
 					zIndex: 1000,
 					transform: "translateX(-50%)"
 				},
-				buttonStyle = {
-					float: "left",
+				shareButtonStyle = {
 					height: "30px",
 					width: "50px",
 					cursor: "pointer",
@@ -75,7 +79,23 @@
 					marginRight: 0,
 					background: "#444",
 					background: "rgba(200, 203, 102, .8)"
-				}
+				},
+				gobuttonStyle={
+					height:"60px",
+					width:"60px",
+					background:"#999",
+					position:"absolute",
+					zIndex:1000,
+					top:"50%",
+					fontSize: "30px",
+					background: "rgba(153,153,153,0.8)",
+					outline:" none",
+					color: "#fff",
+					borderRadius: "10px",
+					transform: "translateY(-50%)",
+					border: "0",
+					cursor: "pointer",
+				};
 			for (let i in shadeStyle) {
 				this.shade.style[i] = shadeStyle[i];
 			};
@@ -85,13 +105,21 @@
 			for (let i in shareStyle) {
 				this.share.style[i] = shareStyle[i];
 			};
-			for (let i in buttonStyle) {
-				this.max.style[i] = buttonStyle[i];
-				this.min.style[i] = buttonStyle[i];
-				this.downLoad.style[i] = buttonStyle[i];
+			for (let i in shareButtonStyle) {
+				this.max.style[i] = shareButtonStyle[i];
+				this.min.style[i] = shareButtonStyle[i];
+				this.downLoad.style[i] = shareButtonStyle[i];
 			};
+			for(let i in gobuttonStyle){
+				this.goNext.style[i]=gobuttonStyle[i];
+				this.goPrev.style[i]=gobuttonStyle[i];
+			};
+			this.goNext.style.right=0;
+			this.goPrev.style.left=0;
 			this.shade.appendChild(this.share);
 			this.shade.appendChild(this.close);
+			this.shade.appendChild(this.goNext);
+			this.shade.appendChild(this.goPrev);
 			this.share.appendChild(this.max);
 			this.share.appendChild(this.min);
 			this.share.appendChild(this.downLoad);
@@ -121,10 +149,15 @@
 			})
 		})
 	};
+	//获取当前图片src;
+	ImageDraws.prototype.getSrc=function(dom){
+		return dom.getAttribute("data-down-src")||dom.getAttribute("src");
+	}
 	//创建放大的图片
 	ImageDraws.prototype.createImg = function(dom) {
 			this.image = document.createElement("img");
-			this.image.src = dom.getAttribute("dota-src");
+			this.image.src = this.getSrc(dom);
+
 			var height,
 				me = this,
 				width;
@@ -146,6 +179,14 @@
 				}
 				me.shade.appendChild(me.image);
 				me.move(me.image)
+				me.image.addEventListener("mousewheel",function(e){
+					e.preventDefault();
+					if(e.wheelDelta>0){
+						me.addSize(0.1)
+					}else if(e.wheelDelta<0){
+						me.reduceSize(0.1)
+				}
+			})
 			}
 		}
 		//显示图片
@@ -178,12 +219,35 @@
 		//添加事件
 	ImageDraws.prototype.addEvent = function() {
 			var me = this;
-			for (let i = 0; i < this.dom.length; i++) {
+			/*for (let i = 0; i < this.dom.length; i++) {
 				this.dom[i].addEventListener("click", function(e) {
 					me.createImg(this);
+					me.alt=me.dom[i].alt||null;
+					me.index=i;
+					me.goButtonChangeColor();
+					if(me.removeDown){
+						me.share.removeChild(me.downLoad);
+					}
 					me.show();
 				})
-			};
+			};*/
+			//事件委托到window上;
+			window.addEventListener("click",function(e){
+				if(e.target.tagName==="IMG"){
+					for(let i = 0 ; i<me.dom.length;i++){
+						if(e.target===me.dom[i]){
+								me.createImg(e.target);
+					me.alt=me.dom[i].alt||null;
+					me.index=i;
+					me.goButtonChangeColor();
+					if(me.removeDown){
+						me.share.removeChild(me.downLoad);
+					}
+					me.show();
+						}
+					}
+				}
+			})
 			this.shade.addEventListener("click", function(e) {
 				e.preventDefault()
 				if (e.target === me.close) {
@@ -198,17 +262,29 @@
 				} else if (e.target === me.min) {
 					me.reduceSize(0.2);
 				}
+			});
+			this.goPrev.addEventListener("mousedown",function(){
+				me.goPrevFn();
+			})
+			this.goNext.addEventListener("mousedown",function(){
+				me.goNextFn();
+			})
+			this.goPrev.addEventListener("mouseup",function(){
+				me.goButtonChangeColor();
+			})
+			this.goNext.addEventListener("mouseupn",function(){
+				me.goButtonChangeColor();
+
 			})
 		}
 		//下载图片
 	ImageDraws.prototype.downImage = function(src) {
 			var a = document.createElement("a");
-			a.href = this.image.src;
-			a.setAttribute("download", src);
+			a.href = src;
+			a.setAttribute("download", this.alt||a.herf);	
 			document.body.appendChild(a);
 			a.click();
 			document.body.removeChild(a);
-
 		}
 		//下载给定的元素数组所有的图片
 	ImageDraws.prototype.downImageAll = function() {
@@ -216,8 +292,43 @@
 			this.downImage(this.dom[i].src)
 		}
 	}
+	ImageDraws.prototype.goButtonChangeColor=function(){
+		if(this.index===0){
+			this.goPrev.style.background="#ccc";
+		}else if(this.index===this.dom.length-1){
+			this.goNext.style.background="#ccc";
+		}else{
+			this.goNext.style.background="rgba(153,153,153,0.8)";
+			this.goPrev.style.background="rgba(153,153,153,0.8)";
+		}
+	}
+	ImageDraws.prototype.goNextFn=function(){
+		if(this.index==this.dom.length-1){
+			return;
+		}else{
+			this.goPrev.style.background="rgb(153,153,153)";
+			this.index++;
+			this.goButtonChangeColor();
+			this.image.src=this.getSrc(this.dom[this.index]);
+		}
+	}
+	ImageDraws.prototype.goPrevFn=function(){
+		if(this.index==0){
+			return;
+		}else{
+			this.goPrev.style.background="rgb(153,153,153)";
+			this.index--;
+			this.goButtonChangeColor();
+			this.image.src=this.getSrc(this.dom[this.index]);
+		}
+	}
+	//添加关闭回调
 	ImageDraws.prototype.closeCallBack = function(callback) {
 		this.closeCallBackFn=callback;
+	}
+	//移除下载按钮
+	ImageDraws.prototype.removeDown=function(){
+		this.removeDown= true;
 	}
 	window.ImageDraws = window.ImageDraws || ImageDraws;
 }(window)
