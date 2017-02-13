@@ -15,10 +15,12 @@
  // html文件中 如果dom不存在data-down-src 打开和下载的图片将会是dom的src；
 
    自定义功能；
-    xxx.colseCallBack(fn);点击关闭按钮时触发的回调函数;
-    xxx.dowImagAll(); 点击下载Dom所有图片文件;  关于这个下载功能存在一个问题：非Google浏览器如果未设置默认下载，
+   
+  xxx.colseCallBack(fn);点击关闭按钮时触发的回调函数;
+  
+  xxx.dowImagAll(); 点击下载Dom所有图片文件;  关于这个下载功能存在一个问题：非Google浏览器如果未设置默认下载，
                       会弹出Doms个对话框来，影响用户体验；
-    xxx.removeDown(); 移除下载按钮；
+  xxx.removeDown(); 移除下载按钮；
 
 
 
