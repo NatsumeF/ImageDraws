@@ -9,6 +9,7 @@
 		}
 		this.dom = arr;
 		this.init();
+		this.index=0;
 	}
 	ImageDraws.prototype.init = function() {
 			this.removeDown=false;
@@ -50,7 +51,6 @@
 					right: "2px",
 					height: " 50px",
 					width: "50px",
-					background: "transparent",
 					border: 0,
 					outline: 0,
 					fontSize: "55px",
@@ -98,21 +98,21 @@
 					border: "0",
 					cursor: "pointer",
 				};
-			for (let i in shadeStyle) {
+			for (var i in shadeStyle) {
 				this.shade.style[i] = shadeStyle[i];
 			};
-			for (let i in closeStyle) {
+			for (var i in closeStyle) {
 				this.close.style[i] = closeStyle[i];
 			};
-			for (let i in shareStyle) {
+			for (var i in shareStyle) {
 				this.share.style[i] = shareStyle[i];
 			};
-			for (let i in shareButtonStyle) {
+			for (var i in shareButtonStyle) {
 				this.max.style[i] = shareButtonStyle[i];
 				this.min.style[i] = shareButtonStyle[i];
 				this.downLoad.style[i] = shareButtonStyle[i];
 			};
-			for(let i in gobuttonStyle){
+			for(var i in gobuttonStyle){
 				this.goNext.style[i]=gobuttonStyle[i];
 				this.goPrev.style[i]=gobuttonStyle[i];
 			};
@@ -160,49 +160,58 @@
 	}
 	//创建放大的图片
 	ImageDraws.prototype.createImg = function(dom) {
-			this.image = document.createElement("img");
-			this.image.src = this.getSrc(dom);
-			var height,
-				me = this,
-				width;
-			this.image.onload = function() {
-				var height = me.image.height,
-					width = me.image.width;
-				var imageStyle = {
-					height: (me.getBodyWidth() * 0.5 * (height / width)) + "px",
-					width: me.getBodyWidth() * 0.5 + "px",
-					position: "absolute",
-					left: "50%",
-					top: "50%",
-					zIndex: 999,
-					cursor: "move",
-					transform: "translate(-50%,-50%)"
-				}
-				for (let i in imageStyle) {
-					me.image.style[i] = imageStyle[i];
-				}
-				me.shade.appendChild(me.image);
-				me.move(me.image)
-				me.image.addEventListener("mousewheel",function(e){
-					var e  = e||window.event;
-					e.preventDefault();
-					if(e.wheelDelta>0){
-						me.addSize(0.1)
-					}else if(e.wheelDelta<0){
-						me.reduceSize(0.1)
-				}
-			})
-				me.image.addEventListener("DOMMouseScroll",function(e){
-					var e  = e||window.event;
-					e.preventDefault();
-					if(e.detail>0){
-						me.addSize(0.1)
-					}else if(e.detail<0){
-						me.reduceSize(0.1)
-					}
-				})
-			}
+		this.image = document.createElement("img");
+		this.image.src = dom.src;
+		var height,
+			me = this,
+			width;
+		var height = me.image.height,
+			width = me.image.width;
+		var imageStyle = {
+			height: (me.getBodyWidth() * 0.2 * (height / width)) + "px",
+			width: me.getBodyWidth() * 0.2 + "px",
+			position: "absolute",
+			left: "50%",
+			top: "50%",
+			zIndex: 999,
+			cursor: "move",
+			transform: "translate(-50%,-50%)"
 		}
+		for (var i in imageStyle) {
+			me.image.style[i] = imageStyle[i];
+		}
+		me.shade.appendChild(me.image);
+		me.move(me.image)
+		me.image.addEventListener("mousewheel", function(e) {
+			var e = e || window.event;
+			e.preventDefault();
+			if (e.wheelDelta > 0) {
+				me.addSize(0.1)
+			} else if (e.wheelDelta < 0) {
+				me.reduceSize(0.1)
+			}
+		})
+		me.image.addEventListener("DOMMouseScroll", function(e) {
+			var e = e || window.event;
+			e.preventDefault();
+			if (e.detail > 0) {
+				me.addSize(0.1)
+			} else if (e.detail < 0) {
+				me.reduceSize(0.1)
+			}
+		})
+		var _img = document.createElement("img");
+		_img.src = this.getSrc(dom);
+		_img.onload = function() {
+			me.image.src = _img.src;
+			me.imgge.style.height=(me.getBodyWidth() * 0.5 * (height / width)) + "px";
+			me.imgge.style.width= me.getBodyWidth() * 0.5 + "px";
+		}
+		_img.onerror = function() {
+			me.imgErrorFn && me.imgErrorFn();
+		}
+	}
+
 		//显示图片
 	ImageDraws.prototype.show = function() {
 			document.body.appendChild(this.shade);
@@ -219,7 +228,7 @@
 	//获取style
 	ImageDraws.prototype.getStyle=function(dom,style){
 		if(getComputedStyle){
-			console.log(window.getComputedStyle(dom,null)[style])
+			//console.log(window.getComputedStyle(dom,null)[style])
 			return window.getComputedStyle(dom,null)[style];
 		}else if( dom.currentStyle){
 			console.log(dom.currentStyle)
@@ -250,7 +259,7 @@
 	}
 	ImageDraws.prototype.addEvent = function() {
 			var me = this;
-			/*for (let i = 0; i < this.dom.length; i++) {
+			/*for (var i = 0; i < this.dom.length; i++) {
 				this.dom[i].addEventListener("click", function(e) {
 					me.createImg(this);
 					me.alt=me.dom[i].alt||null;
@@ -267,7 +276,7 @@
 				var e  = e||window.event;
 				var target = e.target||e.srcElement;
 				if(target.tagName==="IMG"){
-					for(let i = 0 ; i<me.dom.length;i++){
+					for(var i = 0 ; i<me.dom.length;i++){
 						if(target===me.dom[i]){
 								me.createImg(target);
 					me.getAlt(target);
@@ -323,7 +332,7 @@
 		}
 		//下载给定的元素数组所有的图片
 	ImageDraws.prototype.downImageAll = function() {
-		for (let i = 0; i < this.dom.length; i++) {
+		for (var i = 0; i < this.dom.length; i++) {
 			this.downImage(this.getSrc(this.dom[i]))
 		}
 	}
@@ -368,6 +377,9 @@
 	//移除下载按钮
 	ImageDraws.prototype.removeDown=function(){
 		this.removeDown= true;
+	}
+	ImageDraws.prototype.imgAddError=function(fn){
+		this.imgErrorFn=fn;
 	}
 	window.ImageDraws = window.ImageDraws || ImageDraws;
 }(window)
